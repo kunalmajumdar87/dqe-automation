@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    networks:
+      - tafordqenetwork
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: "0"  # Run as root user
+    networks:
+      - tafordqenetwork
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+networks:
+  tafordqenetwork:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  jenkins_home:
