@@ -1,0 +1,1 @@
+podman cp jenkins:/parquet_data C:\Users\KunalMajumdar\OneDrive - EPAM\GIT Epam\dqe-automation\jenkins_conn.md
