@@ -1,0 +1,98 @@
+pipeline {
+	agent any
+
+	environment {
+		DB_HOST = 'postgres'
+		DB_PORT = '5432'
+		DB_NAME = 'mydatabase'
+	}
+
+	options {
+		timestamps()
+	}
+
+	stages {
+		stage('Checkout') {
+			steps {
+				checkout scm
+			}
+		}
+
+		stage('Install System Dependencies') {
+			steps {
+				sh '''
+					apt-get update
+					apt-get install -y python3 python3-pip python3-venv libpq-dev
+				'''
+			}
+		}
+
+		stage('Setup Python Environment') {
+			steps {
+				sh '''
+					python3 -m venv .venv
+					. .venv/bin/activate
+					pip install --upgrade pip
+					pip install -r data_dev/requirements.txt
+					pip install -r "PyTest DQ Framework/requirements.txt"
+				'''
+			}
+		}
+
+		stage('Run Data Pipeline') {
+			steps {
+				withCredentials([
+					usernamePassword(
+						credentialsId: 'postgres-creds',
+						usernameVariable: 'DB_USER',
+						passwordVariable: 'DB_PASSWORD'
+					)
+				]) {
+					sh '''
+						. .venv/bin/activate
+						export PYTHONPATH="$WORKSPACE"
+						python data_dev/main.py
+					'''
+				}
+			}
+		}
+
+		stage('Run PyTest DQ Checks') {
+			steps {
+				withCredentials([
+					usernamePassword(
+						credentialsId: 'postgres-creds',
+						usernameVariable: 'DB_USER',
+						passwordVariable: 'DB_PASSWORD'
+					)
+				]) {
+					sh '''
+						. .venv/bin/activate
+						export PYTHONPATH="$WORKSPACE/PyTest DQ Framework:$WORKSPACE"
+						cd "PyTest DQ Framework"
+						pytest tests \
+						  --db_host="$DB_HOST" \
+						  --db_port="$DB_PORT" \
+						  --db_name="$DB_NAME" \
+						  --db_user="$DB_USER" \
+						  --db_password="$DB_PASSWORD" \
+						  --parquet_root="$WORKSPACE/parquet_data"
+					'''
+				}
+			}
+		}
+	}
+
+	post {
+		always {
+			archiveArtifacts artifacts: 'PyTest DQ Framework/reports/**', allowEmptyArchive: true
+			junit allowEmptyResults: true, testResults: 'PyTest DQ Framework/reports/junit.xml'
+		}
+		success {
+			echo 'DQ pipeline completed successfully.'
+		}
+		failure {
+			echo 'DQ pipeline failed. Check console logs and archived reports.'
+		}
+	}
+}

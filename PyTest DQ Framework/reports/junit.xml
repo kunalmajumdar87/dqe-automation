@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="9" skipped="0" tests="15" time="3.176" timestamp="2026-04-26T18:43:26.944785+05:30" hostname="EPINBANW0566"><testcase classname="dq checks.parquet_files.test_facility_name_min_time_spent_per_visit_date" name="test_facility_name_min_dataset_not_empty" time="0.177" /><testcase classname="dq checks.parquet_files.test_facility_name_min_time_spent_per_visit_date" name="test_facility_name_min_row_count" time="2.182"><failure message="AssertionError: Row count mismatch: postgres_expected=35019 rows, parquet_actual=43652 rows.">expected_source_df =            facility_name  visit_date  min_time_spent
+0       Johnson and Sons  2000-01-01              33
+1       John...van-Reynolds  2026-04-25              36
+35018  Sullivan-Reynolds  2026-04-26              24
+
+[35019 rows x 3 columns]
+actual_parquet_df =            facility_name visit_date  min_time_spent partition_date
+0      Sullivan-Reynolds 2000-01-16              41...         28        2026-04
+43651       Richmond Inc 2026-04-01              18        2026-04
+
+[43652 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_facility_name_min_row_count(expected_source_df, actual_parquet_df, data_quality_library):
+&gt;   	data_quality_library.check_count(
+    		df1=expected_source_df,
+    		df2=actual_parquet_df,
+    		df1_name="postgres_expected",
+    		df2_name="parquet_actual",
+    	)
+
+tests\dq checks\parquet_files\test_facility_name_min_time_spent_per_visit_date.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+df1 =            facility_name  visit_date  min_time_spent
+0       Johnson and Sons  2000-01-01              33
+1       John...van-Reynolds  2026-04-25              36
+35018  Sullivan-Reynolds  2026-04-26              24
+
+[35019 rows x 3 columns]
+df2 =            facility_name visit_date  min_time_spent partition_date
+0      Sullivan-Reynolds 2000-01-16              41...         28        2026-04
+43651       Richmond Inc 2026-04-01              18        2026-04
+
+[43652 rows x 4 columns]
+df1_name = 'postgres_expected', df2_name = 'parquet_actual'
+
+    @staticmethod
+    def check_count(df1: pd.DataFrame, df2: pd.DataFrame, df1_name: str = "source", df2_name: str = "target"):
+&gt;       assert len(df1) == len(df2), (
+            f"Row count mismatch: {df1_name}={len(df1)} rows, {df2_name}={len(df2)} rows."
+        )
+E       AssertionError: Row count mismatch: postgres_expected=35019 rows, parquet_actual=43652 rows.
+
+src\data_quality\data_quality_validation_library.py:33: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_facility_name_min_time_spent_per_visit_date" name="test_facility_name_min_no_duplicates" time="0.005"><failure message="AssertionError: facility_name_min_time_spent_per_visit_date contains 8724 duplicate row(s).">actual_parquet_df =            facility_name visit_date  min_time_spent partition_date
+0      Sullivan-Reynolds 2000-01-16              41...         28        2026-04
+43651       Richmond Inc 2026-04-01              18        2026-04
+
+[43652 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_facility_name_min_no_duplicates(actual_parquet_df, data_quality_library):
+&gt;   	data_quality_library.check_duplicates(
+    		df=actual_parquet_df,
+    		column_names=["facility_name", "visit_date"],
+    		dataset_name="facility_name_min_time_spent_per_visit_date",
+    	)
+
+tests\dq checks\parquet_files\test_facility_name_min_time_spent_per_visit_date.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+df =            facility_name visit_date  min_time_spent partition_date
+0      Sullivan-Reynolds 2000-01-16              41...         28        2026-04
+43651       Richmond Inc 2026-04-01              18        2026-04
+
+[43652 rows x 4 columns]
+column_names = ['facility_name', 'visit_date']
+dataset_name = 'facility_name_min_time_spent_per_visit_date'
+
+    @staticmethod
+    def check_duplicates(df: pd.DataFrame, column_names: list[str] | None = None, dataset_name: str = "dataset"):
+        subset = column_names if column_names else None
+        duplicates_mask = df.duplicated(subset=subset)
+        duplicate_count = int(duplicates_mask.sum())
+&gt;       assert duplicate_count == 0, f"{dataset_name} contains {duplicate_count} duplicate row(s)."
+E       AssertionError: facility_name_min_time_spent_per_visit_date contains 8724 duplicate row(s).
+
+src\data_quality\data_quality_validation_library.py:29: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_facility_name_min_time_spent_per_visit_date" name="test_facility_name_min_data_matches_source" time="0.118"><failure message="AssertionError: Data mismatch detected for facility_name_min_time_spent_per_visit_date. Sample differences: [{'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-02', 'min_time_spent': 29, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-03', 'min_time_spent': 31, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-05', 'min_time_spent': 29, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-06', 'min_time_spent': 17, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-07', 'min_time_spent': 31, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-08', 'min_time_spent': 21, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-10', 'min_time_spent': 47, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-11', 'min_time_spent': 40, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-12', 'min_time_spent': 37, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-13', 'min_time_spent': 15, '_merge': 'left_only'}]">expected_source_df =            facility_name  visit_date  min_time_spent
+0       Johnson and Sons  2000-01-01              33
+1       John...van-Reynolds  2026-04-25              36
+35018  Sullivan-Reynolds  2026-04-26              24
+
+[35019 rows x 3 columns]
+actual_parquet_df =            facility_name visit_date  min_time_spent partition_date
+0      Sullivan-Reynolds 2000-01-16              41...         28        2026-04
+43651       Richmond Inc 2026-04-01              18        2026-04
+
+[43652 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_facility_name_min_data_matches_source(expected_source_df, actual_parquet_df, data_quality_library):
+&gt;   	data_quality_library.check_data_full_data_set(
+    		expected_df=expected_source_df,
+    		actual_df=actual_parquet_df,
+    		sort_by=["facility_name", "visit_date"],
+    		numeric_columns=["min_time_spent"],
+    		dataset_name="facility_name_min_time_spent_per_visit_date",
+    	)
+
+tests\dq checks\parquet_files\test_facility_name_min_time_spent_per_visit_date.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+expected_df =            facility_name  visit_date  min_time_spent
+0       Johnson and Sons  2000-01-01              33
+1       John...van-Reynolds  2026-04-25              36
+35018  Sullivan-Reynolds  2026-04-26              24
+
+[35019 rows x 3 columns]
+actual_df =            facility_name visit_date  min_time_spent
+0      Sullivan-Reynolds 2000-01-16              41
+1      Sulliva... Johnson-Price 2026-04-01              28
+43651       Richmond Inc 2026-04-01              18
+
+[43652 rows x 3 columns]
+sort_by = ['facility_name', 'visit_date'], numeric_columns = ['min_time_spent']
+dataset_name = 'facility_name_min_time_spent_per_visit_date'
+
+    def check_data_full_data_set(
+        self,
+        expected_df: pd.DataFrame,
+        actual_df: pd.DataFrame,
+        sort_by: list[str],
+        numeric_columns: list[str] | None = None,
+        dataset_name: str = "dataset",
+    ):
+        expected_df = expected_df.copy()
+        actual_df = actual_df.copy()
+    
+        expected_columns = list(expected_df.columns)
+        actual_columns = list(actual_df.columns)
+        missing_columns = [col for col in expected_columns if col not in actual_columns]
+        assert not missing_columns, (
+            f"Column mismatch for {dataset_name}. Missing columns in actual dataset: {missing_columns}."
+        )
+        actual_df = actual_df[expected_columns]
+    
+        expected_norm = self._normalize_for_compare(expected_df, numeric_columns=numeric_columns)
+        actual_norm = self._normalize_for_compare(actual_df, numeric_columns=numeric_columns)
+    
+        expected_norm = expected_norm.sort_values(by=sort_by).reset_index(drop=True)
+        actual_norm = actual_norm.sort_values(by=sort_by).reset_index(drop=True)
+    
+        if not expected_norm.equals(actual_norm):
+            merged = expected_norm.merge(actual_norm, how="outer", indicator=True)
+            diff_sample = merged[merged["_merge"] != "both"].head(10).to_dict(orient="records")
+&gt;           raise AssertionError(
+                f"Data mismatch detected for {dataset_name}. Sample differences: {diff_sample}"
+            )
+E           AssertionError: Data mismatch detected for facility_name_min_time_spent_per_visit_date. Sample differences: [{'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-02', 'min_time_spent': 29, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-03', 'min_time_spent': 31, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-05', 'min_time_spent': 29, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-06', 'min_time_spent': 17, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-07', 'min_time_spent': 31, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-08', 'min_time_spent': 21, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-10', 'min_time_spent': 47, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-11', 'min_time_spent': 40, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-12', 'min_time_spent': 37, '_merge': 'left_only'}, {'facility_name': 'Johnson and Sons', 'visit_date': '2026-04-13', 'min_time_spent': 15, '_merge': 'left_only'}]
+
+src\data_quality\data_quality_validation_library.py:65: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_facility_type_avg_time_spent_per_visit_date" name="test_facility_type_avg_dataset_not_empty" time="0.113" /><testcase classname="dq checks.parquet_files.test_facility_type_avg_time_spent_per_visit_date" name="test_facility_type_avg_row_count" time="0.146"><failure message="AssertionError: Row count mismatch: postgres_expected=35019 rows, parquet_actual=25378 rows.">expected_source_df =       facility_type  visit_date  avg_time_spent
+0            Clinic  2000-01-01           42.33
+1            Clinic  2...017   Urgent Care  2026-04-25           41.50
+35018   Urgent Care  2026-04-26           31.50
+
+[35019 rows x 3 columns]
+actual_parquet_df =           facility_type visit_date  avg_time_spent partition_date
+0                Clinic 2000-11-27           25.67  ...       38.67        2026-04
+25377          Hospital 2026-04-01           39.00        2026-04
+
+[25378 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_facility_type_avg_row_count(expected_source_df, actual_parquet_df, data_quality_library):
+&gt;       data_quality_library.check_count(
+            df1=expected_source_df,
+            df2=actual_parquet_df,
+            df1_name="postgres_expected",
+            df2_name="parquet_actual",
+        )
+
+tests\dq checks\parquet_files\test_facility_type_avg_time_spent_per_visit_date.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+df1 =       facility_type  visit_date  avg_time_spent
+0            Clinic  2000-01-01           42.33
+1            Clinic  2...017   Urgent Care  2026-04-25           41.50
+35018   Urgent Care  2026-04-26           31.50
+
+[35019 rows x 3 columns]
+df2 =           facility_type visit_date  avg_time_spent partition_date
+0                Clinic 2000-11-27           25.67  ...       38.67        2026-04
+25377          Hospital 2026-04-01           39.00        2026-04
+
+[25378 rows x 4 columns]
+df1_name = 'postgres_expected', df2_name = 'parquet_actual'
+
+    @staticmethod
+    def check_count(df1: pd.DataFrame, df2: pd.DataFrame, df1_name: str = "source", df2_name: str = "target"):
+&gt;       assert len(df1) == len(df2), (
+            f"Row count mismatch: {df1_name}={len(df1)} rows, {df2_name}={len(df2)} rows."
+        )
+E       AssertionError: Row count mismatch: postgres_expected=35019 rows, parquet_actual=25378 rows.
+
+src\data_quality\data_quality_validation_library.py:33: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_facility_type_avg_time_spent_per_visit_date" name="test_facility_type_avg_includes_all_facility_types" time="0.002"><failure message="AssertionError: Missing facility types in parquet output: {'Urgent Care'}&#10;assert False&#10; +  where False = &lt;built-in method issubset of set object at 0x0000029BBF5A2CE0&gt;({'Clinic', 'Hospital', 'Specialty Center'})&#10; +    where &lt;built-in method issubset of set object at 0x0000029BBF5A2CE0&gt; = {'Clinic', 'Hospital', 'Specialty Center', 'Urgent Care'}.issubset">actual_parquet_df =           facility_type visit_date  avg_time_spent partition_date
+0                Clinic 2000-11-27           25.67  ...       38.67        2026-04
+25377          Hospital 2026-04-01           39.00        2026-04
+
+[25378 rows x 4 columns]
+
+    @pytest.mark.dq
+    def test_facility_type_avg_includes_all_facility_types(actual_parquet_df):
+        found = set(actual_parquet_df["facility_type"].dropna().unique())
+        expected = {"Hospital", "Clinic", "Urgent Care", "Specialty Center"}
+&gt;       assert expected.issubset(found), f"Missing facility types in parquet output: {expected - found}"
+E       AssertionError: Missing facility types in parquet output: {'Urgent Care'}
+E       assert False
+E        +  where False = &lt;built-in method issubset of set object at 0x0000029BBF5A2CE0&gt;({'Clinic', 'Hospital', 'Specialty Center'})
+E        +    where &lt;built-in method issubset of set object at 0x0000029BBF5A2CE0&gt; = {'Clinic', 'Hospital', 'Specialty Center', 'Urgent Care'}.issubset
+
+tests\dq checks\parquet_files\test_facility_type_avg_time_spent_per_visit_date.py:51: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_facility_type_avg_time_spent_per_visit_date" name="test_facility_type_avg_data_matches_source" time="0.081"><failure message="AssertionError: Data mismatch detected for facility_type_avg_time_spent_per_visit_date. Sample differences: [{'facility_type': 'Clinic', 'visit_date': '2000-01-01', 'avg_time_spent': 42.33, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-02', 'avg_time_spent': 51.0, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-03', 'avg_time_spent': 36.25, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-04', 'avg_time_spent': 37.5, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-05', 'avg_time_spent': 47.33, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-06', 'avg_time_spent': 38.5, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-07', 'avg_time_spent': 53.5, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-08', 'avg_time_spent': 43.0, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-09', 'avg_time_spent': 37.67, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-10', 'avg_time_spent': 43.0, '_merge': 'left_only'}]">expected_source_df =       facility_type  visit_date  avg_time_spent
+0            Clinic  2000-01-01           42.33
+1            Clinic  2...017   Urgent Care  2026-04-25           41.50
+35018   Urgent Care  2026-04-26           31.50
+
+[35019 rows x 3 columns]
+actual_parquet_df =           facility_type visit_date  avg_time_spent partition_date
+0                Clinic 2000-11-27           25.67  ...       38.67        2026-04
+25377          Hospital 2026-04-01           39.00        2026-04
+
+[25378 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_facility_type_avg_data_matches_source(expected_source_df, actual_parquet_df, data_quality_library):
+&gt;       data_quality_library.check_data_full_data_set(
+            expected_df=expected_source_df,
+            actual_df=actual_parquet_df,
+            sort_by=["facility_type", "visit_date"],
+            numeric_columns=["avg_time_spent"],
+            dataset_name="facility_type_avg_time_spent_per_visit_date",
+        )
+
+tests\dq checks\parquet_files\test_facility_type_avg_time_spent_per_visit_date.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+expected_df =       facility_type  visit_date  avg_time_spent
+0            Clinic  2000-01-01           42.33
+1            Clinic  2...017   Urgent Care  2026-04-25           41.50
+35018   Urgent Care  2026-04-26           31.50
+
+[35019 rows x 3 columns]
+actual_df =           facility_type visit_date  avg_time_spent
+0                Clinic 2000-11-27           25.67
+1               ...pecialty Center 2026-04-01           38.67
+25377          Hospital 2026-04-01           39.00
+
+[25378 rows x 3 columns]
+sort_by = ['facility_type', 'visit_date'], numeric_columns = ['avg_time_spent']
+dataset_name = 'facility_type_avg_time_spent_per_visit_date'
+
+    def check_data_full_data_set(
+        self,
+        expected_df: pd.DataFrame,
+        actual_df: pd.DataFrame,
+        sort_by: list[str],
+        numeric_columns: list[str] | None = None,
+        dataset_name: str = "dataset",
+    ):
+        expected_df = expected_df.copy()
+        actual_df = actual_df.copy()
+    
+        expected_columns = list(expected_df.columns)
+        actual_columns = list(actual_df.columns)
+        missing_columns = [col for col in expected_columns if col not in actual_columns]
+        assert not missing_columns, (
+            f"Column mismatch for {dataset_name}. Missing columns in actual dataset: {missing_columns}."
+        )
+        actual_df = actual_df[expected_columns]
+    
+        expected_norm = self._normalize_for_compare(expected_df, numeric_columns=numeric_columns)
+        actual_norm = self._normalize_for_compare(actual_df, numeric_columns=numeric_columns)
+    
+        expected_norm = expected_norm.sort_values(by=sort_by).reset_index(drop=True)
+        actual_norm = actual_norm.sort_values(by=sort_by).reset_index(drop=True)
+    
+        if not expected_norm.equals(actual_norm):
+            merged = expected_norm.merge(actual_norm, how="outer", indicator=True)
+            diff_sample = merged[merged["_merge"] != "both"].head(10).to_dict(orient="records")
+&gt;           raise AssertionError(
+                f"Data mismatch detected for {dataset_name}. Sample differences: {diff_sample}"
+            )
+E           AssertionError: Data mismatch detected for facility_type_avg_time_spent_per_visit_date. Sample differences: [{'facility_type': 'Clinic', 'visit_date': '2000-01-01', 'avg_time_spent': 42.33, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-02', 'avg_time_spent': 51.0, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-03', 'avg_time_spent': 36.25, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-04', 'avg_time_spent': 37.5, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-05', 'avg_time_spent': 47.33, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-06', 'avg_time_spent': 38.5, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-07', 'avg_time_spent': 53.5, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-08', 'avg_time_spent': 43.0, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-09', 'avg_time_spent': 37.67, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'visit_date': '2000-01-10', 'avg_time_spent': 43.0, '_merge': 'left_only'}]
+
+src\data_quality\data_quality_validation_library.py:65: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_patient_sum_treatment_cost_per_facility_type" name="test_patient_sum_dataset_not_empty" time="0.006" /><testcase classname="dq checks.parquet_files.test_patient_sum_treatment_cost_per_facility_type" name="test_patient_sum_not_null_names" time="0.001"><failure message="AssertionError: patient_sum_treatment_cost_per_facility_type has NULLs in columns: {'full_name': 4}">actual_parquet_df =    facility_type         full_name  sum_treatment_cost facility_type_partition
+0         Clinic     Antonio Allen     ...      Urgent_Care
+63   Urgent Care              None         25764789.84             Urgent_Care
+
+[64 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_patient_sum_not_null_names(actual_parquet_df, data_quality_library):
+&gt;       data_quality_library.check_not_null_values(
+            df=actual_parquet_df,
+            column_names=["full_name"],
+            dataset_name="patient_sum_treatment_cost_per_facility_type",
+        )
+
+tests\dq checks\parquet_files\test_patient_sum_treatment_cost_per_facility_type.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+df =    facility_type         full_name  sum_treatment_cost facility_type_partition
+0         Clinic     Antonio Allen     ...      Urgent_Care
+63   Urgent Care              None         25764789.84             Urgent_Care
+
+[64 rows x 4 columns]
+column_names = ['full_name']
+dataset_name = 'patient_sum_treatment_cost_per_facility_type'
+
+    @staticmethod
+    def check_not_null_values(df: pd.DataFrame, column_names: list[str], dataset_name: str = "dataset"):
+        null_counts = {col: int(df[col].isna().sum()) for col in column_names}
+        columns_with_nulls = {col: count for col, count in null_counts.items() if count &gt; 0}
+&gt;       assert not columns_with_nulls, f"{dataset_name} has NULLs in columns: {columns_with_nulls}"
+E       AssertionError: patient_sum_treatment_cost_per_facility_type has NULLs in columns: {'full_name': 4}
+
+src\data_quality\data_quality_validation_library.py:77: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_patient_sum_treatment_cost_per_facility_type" name="test_patient_sum_non_negative_cost" time="0.001"><failure message="AssertionError: patient_sum_treatment_cost_per_facility_type has 16 negative values in sum_treatment_cost.">actual_parquet_df =    facility_type         full_name  sum_treatment_cost facility_type_partition
+0         Clinic     Antonio Allen     ...      Urgent_Care
+63   Urgent Care              None         25764789.84             Urgent_Care
+
+[64 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_patient_sum_non_negative_cost(actual_parquet_df, data_quality_library):
+&gt;       data_quality_library.check_non_negative_values(
+            df=actual_parquet_df,
+            column_name="sum_treatment_cost",
+            dataset_name="patient_sum_treatment_cost_per_facility_type",
+        )
+
+tests\dq checks\parquet_files\test_patient_sum_treatment_cost_per_facility_type.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+df =    facility_type         full_name  sum_treatment_cost facility_type_partition
+0         Clinic     Antonio Allen     ...      Urgent_Care
+63   Urgent Care              None         25764789.84             Urgent_Care
+
+[64 rows x 4 columns]
+column_name = 'sum_treatment_cost'
+dataset_name = 'patient_sum_treatment_cost_per_facility_type'
+
+    @staticmethod
+    def check_non_negative_values(df: pd.DataFrame, column_name: str, dataset_name: str = "dataset"):
+        negative_count = int((pd.to_numeric(df[column_name], errors="coerce") &lt; 0).sum())
+&gt;       assert negative_count == 0, f"{dataset_name} has {negative_count} negative values in {column_name}."
+E       AssertionError: patient_sum_treatment_cost_per_facility_type has 16 negative values in sum_treatment_cost.
+
+src\data_quality\data_quality_validation_library.py:82: AssertionError</failure></testcase><testcase classname="dq checks.parquet_files.test_patient_sum_treatment_cost_per_facility_type" name="test_patient_sum_data_matches_source" time="0.078"><failure message="AssertionError: Data mismatch detected for patient_sum_treatment_cost_per_facility_type. Sample differences: [{'facility_type': 'Clinic', 'full_name': '&lt;NULL&gt;', 'sum_treatment_cost': -25837083.86, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Anthony Levy', 'sum_treatment_cost': 1797673.59, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Antonio Allen', 'sum_treatment_cost': -1803790.63, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Antonio Allen', 'sum_treatment_cost': 1803790.63, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Christopher Knox', 'sum_treatment_cost': -1739511.69, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Christopher Knox', 'sum_treatment_cost': 1742590.78, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Colleen Peterson', 'sum_treatment_cost': 1759528.54, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Crystal Russell', 'sum_treatment_cost': 1658968.81, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Dalton Weber', 'sum_treatment_cost': -1810486.14, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Dalton Weber', 'sum_treatment_cost': 1819952.68, '_merge': 'left_only'}]">expected_source_df =     facility_type         full_name  sum_treatment_cost
+0          Clinic      Anthony Levy          1797673.59
+1     ...e   Victoria Norton          1702881.22
+119   Urgent Care     William Davis          1751394.88
+
+[120 rows x 3 columns]
+actual_parquet_df =    facility_type         full_name  sum_treatment_cost facility_type_partition
+0         Clinic     Antonio Allen     ...      Urgent_Care
+63   Urgent Care              None         25764789.84             Urgent_Care
+
+[64 rows x 4 columns]
+data_quality_library = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+
+    @pytest.mark.dq
+    def test_patient_sum_data_matches_source(expected_source_df, actual_parquet_df, data_quality_library):
+&gt;       data_quality_library.check_data_full_data_set(
+            expected_df=expected_source_df,
+            actual_df=actual_parquet_df,
+            sort_by=["facility_type", "full_name"],
+            numeric_columns=["sum_treatment_cost"],
+            dataset_name="patient_sum_treatment_cost_per_facility_type",
+        )
+
+tests\dq checks\parquet_files\test_patient_sum_treatment_cost_per_facility_type.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;src.data_quality.data_quality_validation_library.DataQualityLibrary object at 0x0000029BBF43C440&gt;
+expected_df =     facility_type         full_name  sum_treatment_cost
+0          Clinic      Anthony Levy          1797673.59
+1     ...e   Victoria Norton          1702881.22
+119   Urgent Care     William Davis          1751394.88
+
+[120 rows x 3 columns]
+actual_df =    facility_type         full_name  sum_treatment_cost
+0         Clinic     Antonio Allen         -1803790.63
+1       ...are   Tiffany Edwards          1694356.18
+63   Urgent Care              None         25764789.84
+
+[64 rows x 3 columns]
+sort_by = ['facility_type', 'full_name']
+numeric_columns = ['sum_treatment_cost']
+dataset_name = 'patient_sum_treatment_cost_per_facility_type'
+
+    def check_data_full_data_set(
+        self,
+        expected_df: pd.DataFrame,
+        actual_df: pd.DataFrame,
+        sort_by: list[str],
+        numeric_columns: list[str] | None = None,
+        dataset_name: str = "dataset",
+    ):
+        expected_df = expected_df.copy()
+        actual_df = actual_df.copy()
+    
+        expected_columns = list(expected_df.columns)
+        actual_columns = list(actual_df.columns)
+        missing_columns = [col for col in expected_columns if col not in actual_columns]
+        assert not missing_columns, (
+            f"Column mismatch for {dataset_name}. Missing columns in actual dataset: {missing_columns}."
+        )
+        actual_df = actual_df[expected_columns]
+    
+        expected_norm = self._normalize_for_compare(expected_df, numeric_columns=numeric_columns)
+        actual_norm = self._normalize_for_compare(actual_df, numeric_columns=numeric_columns)
+    
+        expected_norm = expected_norm.sort_values(by=sort_by).reset_index(drop=True)
+        actual_norm = actual_norm.sort_values(by=sort_by).reset_index(drop=True)
+    
+        if not expected_norm.equals(actual_norm):
+            merged = expected_norm.merge(actual_norm, how="outer", indicator=True)
+            diff_sample = merged[merged["_merge"] != "both"].head(10).to_dict(orient="records")
+&gt;           raise AssertionError(
+                f"Data mismatch detected for {dataset_name}. Sample differences: {diff_sample}"
+            )
+E           AssertionError: Data mismatch detected for patient_sum_treatment_cost_per_facility_type. Sample differences: [{'facility_type': 'Clinic', 'full_name': '&lt;NULL&gt;', 'sum_treatment_cost': -25837083.86, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Anthony Levy', 'sum_treatment_cost': 1797673.59, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Antonio Allen', 'sum_treatment_cost': -1803790.63, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Antonio Allen', 'sum_treatment_cost': 1803790.63, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Christopher Knox', 'sum_treatment_cost': -1739511.69, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Christopher Knox', 'sum_treatment_cost': 1742590.78, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Colleen Peterson', 'sum_treatment_cost': 1759528.54, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Crystal Russell', 'sum_treatment_cost': 1658968.81, '_merge': 'left_only'}, {'facility_type': 'Clinic', 'full_name': 'Dalton Weber', 'sum_treatment_cost': -1810486.14, '_merge': 'right_only'}, {'facility_type': 'Clinic', 'full_name': 'Dalton Weber', 'sum_treatment_cost': 1819952.68, '_merge': 'left_only'}]
+
+src\data_quality\data_quality_validation_library.py:65: AssertionError</failure></testcase><testcase classname="test_examples" name="test_check_dataset_is_not_empty" time="0.001" /><testcase classname="test_examples" name="test_check_duplicates_detects_duplicates" time="0.001" /><testcase classname="test_examples" name="test_check_non_negative_values_detects_negative" time="0.002" /></testsuite></testsuites>
