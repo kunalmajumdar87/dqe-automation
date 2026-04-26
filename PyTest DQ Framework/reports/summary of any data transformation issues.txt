@@ -1,0 +1,23 @@
+Data transformation issues identified during validation:
+
+1. facility_name_min_time_spent_per_visit_date
+Duplicate inflation in parquet output (43652 vs 35019 expected rows).
+8724 duplicate business keys on facility_name + visit_date.
+Root cause: UNION ALL duplicates records from the second branch instead of de-duplicating.
+
+2. facility_type_avg_time_spent_per_visit_date
+Missing historical data and category coverage (25378 vs 35019 expected rows).
+Urgent Care is fully missing from parquet output.
+Root cause: restrictive filters in transformation logic:
+visit_timestamp > 2000-11-01 removes earlier months.
+facility_type IN (Hospital, Clinic, Specialty Center) excludes Urgent Care.
+
+3. patient_sum_treatment_cost_per_facility_type
+Data quality violations in output:
+4 NULL full_name values.
+16 negative sum_treatment_cost values.
+Row loss (64 vs 120 expected).
+Root cause:
+CASE sets full_name to NULL for first patient group.
+Clinic costs are negated with -SUM(...).
+GROUP BY full_name collapses NULL names into aggregated rows.
