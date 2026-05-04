@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.4.2 (Python 3.13.12 on win32)" generated="2026-05-04T13:03:02.896990" rpa="false" schemaversion="5">
+<suite id="s1" name="Test" source="C:\Users\KunalMajumdar\OneDrive - EPAM\GIT Epam\Personal\dqe-automation\Robot Framework\test.robot">
+<test id="s1-t1" name="Compare HTML Table and Parquet Data" line="11">
+<kw name="Open Browser" owner="SeleniumLibrary">
+<msg time="2026-05-04T13:03:03.456485" level="INFO">Opening browser 'Chrome' to base url 'file://C:/Users/KunalMajumdar/OneDrive - EPAM/GIT Epam/Personal/dqe-automation/PyTest DQ Framework/reports/report.html'.</msg>
+<arg>file://${REPORT_FILE}</arg>
+<arg>Chrome</arg>
+<doc>Opens a new browser instance to the optional ``url``.</doc>
+<status status="PASS" start="2026-05-04T13:03:03.456104" elapsed="1.562228"/>
+</kw>
+<kw name="Get WebElement" owner="SeleniumLibrary">
+<msg time="2026-05-04T13:03:05.040797" level="INFO">${table} = &lt;selenium.webdriver.remote.webelement.WebElement (session="de54a5e9bd1eea3e001036373ca3e31f", element="f.7437BE6BF65220A30FDD06F3FA648E1C.d.4584F45EBE723D40B9555877B77C7CBC.e.2")&gt;</msg>
+<var>${table}</var>
+<arg>//table</arg>
+<doc>Returns the first WebElement matching the given ``locator``.</doc>
+<status status="PASS" start="2026-05-04T13:03:05.019105" elapsed="0.021927"/>
+</kw>
+<kw name="Get Element Attribute" owner="SeleniumLibrary">
+<msg time="2026-05-04T13:03:05.052618" level="INFO">${table_html} = &lt;table id="environment"&gt;
+      &lt;tr&gt;
+        &lt;td&gt;Python&lt;/td&gt;
+        &lt;td&gt;&lt;div&gt;3.13.12&lt;/div&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+    
+      &lt;tr&gt;
+        &lt;td&gt;Platform&lt;/td&gt;
+        &lt;td&gt;&lt;div&gt;Windows-11-10.0.26200-SP0&lt;/div&gt;&lt;/...</msg>
+<var>${table_html}</var>
+<arg>${table}</arg>
+<arg>outerHTML</arg>
+<doc>Returns the value of ``attribute`` from the element ``locator``.</doc>
+<status status="PASS" start="2026-05-04T13:03:05.041942" elapsed="0.010726"/>
+</kw>
+<kw name="Read Html Table To Df" owner="helper.Helper">
+<msg time="2026-05-04T13:03:05.063468" level="INFO">${html_df} =           0                           1
+0    Python                     3.13.12
+1  Platform   Windows-11-10.0.26200-SP0
+2  Packages  pytest: 8.3.5pluggy: 1.6.0
+3   Plugins  html: 4.1.1metadata: 3.1.1</msg>
+<var>${html_df}</var>
+<arg>${table_html}</arg>
+<status status="PASS" start="2026-05-04T13:03:05.053082" elapsed="0.010519"/>
+</kw>
+<kw name="Read Parquet With Filter" owner="helper.Helper">
+<msg time="2026-05-04T13:03:05.371709" level="INFO">${parquet_df} =            facility_name visit_date  min_time_spent partition_date facility_type_partition
+39918   Johnson and Sons 2024-01-01            33.0        2024-01                     NaN
+39920       Richmo...</msg>
+<var>${parquet_df}</var>
+<arg>${PARQUET_FOLDER}</arg>
+<arg>${FILTER_DATE}</arg>
+<arg>visit_date</arg>
+<status status="PASS" start="2026-05-04T13:03:05.064721" elapsed="0.307045"/>
+</kw>
+<kw name="Compare Dataframes" owner="helper.Helper">
+<msg time="2026-05-04T13:03:05.375138" level="INFO">${result} = False</msg>
+<msg time="2026-05-04T13:03:05.379104" level="INFO">${diff} =               0                           1      facility_name visit_date  min_time_spent partition_date facility_type_partition
+0        Python                     3.13.12                NaN        N...</msg>
+<var>${result}</var>
+<var>${diff}</var>
+<arg>${html_df}</arg>
+<arg>${parquet_df}</arg>
+<status status="PASS" start="2026-05-04T13:03:05.372203" elapsed="0.006939"/>
+</kw>
+<kw name="Run Keyword If" owner="BuiltIn">
+<arg>'${result}'=='True'</arg>
+<arg>Log</arg>
+<arg>Data matches!</arg>
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<status status="PASS" start="2026-05-04T13:03:05.379512" elapsed="0.000443"/>
+</kw>
+<kw name="Run Keyword If" owner="BuiltIn">
+<kw name="Fail" owner="BuiltIn">
+<msg time="2026-05-04T13:03:05.385807" level="FAIL">Data mismatch:               0                           1      facility_name visit_date  min_time_spent partition_date facility_type_partition
+0        Python                     3.13.12                NaN        NaT             NaN            NaN                     NaN
+1      Platform   Windows-11-10.0.26200-SP0                NaN        NaT             NaN            NaN                     NaN
+2      Packages  pytest: 8.3.5pluggy: 1.6.0                NaN        NaT             NaN            NaN                     NaN
+3       Plugins  html: 4.1.1metadata: 3.1.1                NaN        NaT             NaN            NaN                     NaN
+39920       NaN                         NaN       Richmond Inc 2024-01-01            19.0        2024-01                     NaN
+39935       NaN                         NaN      Johnson-Price 2024-01-01            17.0        2024-01                     NaN
+39938       NaN                         NaN  Sullivan-Reynolds 2024-01-01            37.0        2024-01                     NaN</msg>
+<arg>Data mismatch: ${diff}</arg>
+<doc>Fails the test with the given message and optionally alters its tags.</doc>
+<status status="FAIL" start="2026-05-04T13:03:05.380539" elapsed="0.005546">Data mismatch:               0                           1      facility_name visit_date  min_time_spent partition_date facility_type_partition
+0        Python                     3.13.12                NaN        NaT             NaN            NaN                     NaN
+1      Platform   Windows-11-10.0.26200-SP0                NaN        NaT             NaN            NaN                     NaN
+2      Packages  pytest: 8.3.5pluggy: 1.6.0                NaN        NaT             NaN            NaN                     NaN
+3       Plugins  html: 4.1.1metadata: 3.1.1                NaN        NaT             NaN            NaN                     NaN
+39920       NaN                         NaN       Richmond Inc 2024-01-01            19.0        2024-01                     NaN
+39935       NaN                         NaN      Johnson-Price 2024-01-01            17.0        2024-01                     NaN
+39938       NaN                         NaN  Sullivan-Reynolds 2024-01-01            37.0        2024-01                     NaN</status>
+</kw>
+<arg>'${result}'=='False'</arg>
+<arg>Fail</arg>
+<arg>Data mismatch: ${diff}</arg>
+<doc>Runs the given keyword with the given arguments, if ``condition`` is true.</doc>
+<status status="FAIL" start="2026-05-04T13:03:05.380275" elapsed="0.005953">Data mismatch:               0                           1      facility_name visit_date  min_time_spent partition_date facility_type_partition
+0        Python                     3.13.12                NaN        NaT             NaN            NaN                     NaN
+1      Platform   Windows-11-10.0.26200-SP0                NaN        NaT             NaN            NaN                     NaN
+2      Packages  pytest: 8.3.5pluggy: 1.6.0                NaN        NaT             NaN            NaN                     NaN
+3       Plugins  html: 4.1.1metadata: 3.1.1                NaN        NaT             NaN            NaN                     NaN
+39920       NaN                         NaN       Richmond Inc 2024-01-01            19.0        2024-01                     NaN
+39935       NaN                         NaN      Johnson-Price 2024-01-01            17.0        2024-01                     NaN
+39938       NaN                         NaN  Sullivan-Reynolds 2024-01-01            37.0        2024-01                     NaN</status>
+</kw>
+<kw name="Close Browser" owner="SeleniumLibrary" type="TEARDOWN">
+<doc>Closes the current browser.</doc>
+<status status="PASS" start="2026-05-04T13:03:05.386813" elapsed="2.164215"/>
+</kw>
+<status status="FAIL" start="2026-05-04T13:03:03.454849" elapsed="4.096521">Data mismatch:               0                           1      facility_name visit_date  min_time_spent partition_date facility_type_partition
+0        Python                     3.13.12                NaN        NaT             NaN            NaN                     NaN
+1      Platform   Windows-11-10.0.26200-SP0                NaN        NaT             NaN            NaN                     NaN
+2      Packages  pytest: 8.3.5pluggy: 1.6.0                NaN        NaT             NaN            NaN                     NaN
+3       Plugins  html: 4.1.1metadata: 3.1.1                NaN        NaT             NaN            NaN                     NaN
+39920       NaN                         NaN       Richmond Inc 2024-01-01            19.0        2024-01                     NaN
+39935       NaN                         NaN      Johnson-Price 2024-01-01            17.0        2024-01                     NaN
+39938       NaN                         NaN  Sullivan-Reynolds 2024-01-01            37.0        2024-01                     NaN</status>
+</test>
+<status status="FAIL" start="2026-05-04T13:03:02.898228" elapsed="4.654812"/>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="1" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat name="Test" id="s1" pass="0" fail="1" skip="0">Test</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
