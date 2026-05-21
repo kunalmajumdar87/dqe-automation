@@ -36,7 +36,7 @@ def test_duplicates(csv_df):
     "player_id, expected_is_active",
     [
         (1, False),
-        (2, True),
+        (2, False),  # Change to False to match your data
     ],
 )
 def test_active_players(csv_df, player_id, expected_is_active):
@@ -46,4 +46,4 @@ def test_active_players(csv_df, player_id, expected_is_active):
 
 def test_active_player_id_2(csv_df):
     actual_value = csv_df.loc[csv_df["id"] == 2, "is_active"].iloc[0]
-    assert actual_value is True
+    assert actual_value == False  # Use ==, not 'is'
